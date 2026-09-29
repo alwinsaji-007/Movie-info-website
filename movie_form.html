@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<a class="back-link" href="{{ url_for('admin_dashboard') }}">← Back to admin area</a>
+
+<section class="form-card movie-form">
+    {% if movie %}
+        <p class="small-title">EDIT MOVIE</p>
+        <h1>Update {{ movie.movie_name }}</h1>
+        <p>Leave the image empty if you want to keep the current poster.</p>
+    {% else %}
+        <p class="small-title">ADD MOVIE</p>
+        <h1>Add a new movie</h1>
+        <p>Enter the movie information and upload its poster.</p>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        <label for="movie_name">Movie title</label>
+        <input id="movie_name" name="movie_name" maxlength="100" required
+               value="{{ movie.movie_name if movie else '' }}">
+
+        <label for="release_date">Release date</label>
+        <input id="release_date" name="release_date" type="date" required
+               value="{{ movie.release_date.strftime('%Y-%m-%d') if movie else '' }}">
+
+        <label for="gross_collection">Box office amount in US dollars</label>
+        <input id="gross_collection" name="gross_collection" type="number" min="0" required
+               value="{{ movie.gross_collection if movie else '' }}">
+
+        <label for="synopsis">Synopsis</label>
+        <textarea id="synopsis" name="synopsis" maxlength="1500" required>{{ movie.synopsis if movie else '' }}</textarea>
+
+        <label>Genres</label>
+        <div class="genre-options">
+            {% for genre in genres %}
+                <label>
+                    <input type="checkbox" name="genres" value="{{ genre.genre_id }}"
+                    {% if movie and genre in movie.genres %}checked{% endif %}>
+                    {{ genre.genre_name }}
+                </label>
+            {% endfor %}
+        </div>
+
+        <label for="movie_poster">Movie poster</label>
+        <input id="movie_poster" name="movie_poster" type="file"
+               accept=".png,.jpg,.jpeg,.gif,.webp">
+
+        {% if movie %}
+            <img class="current-poster"
+                 src="{{ url_for('static', filename='images/' + movie.movie_poster) }}"
+                 alt="Current poster">
+        {% endif %}
+
+        <button class="button" type="submit">
+            {% if movie %}Save changes{% else %}Add movie{% endif %}
+        </button>
+    </form>
+</section>
+{% endblock %}

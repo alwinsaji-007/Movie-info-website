@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="welcome-box">
+    <div>
+        <p class="small-title">MOVIE INFORMATION WEBSITE</p>
+
+        <h1>Welcome to MovieHub</h1>
+
+        <p>
+            Find movie information, browse your favourite films and read reviews
+            from other viewers.
+        </p>
+
+        <a class="button" href="{{ url_for('movies_page') }}">
+            Explore movies
+        </a>
+    </div>
+</section>
+
+<section class="section-heading">
+    <div>
+        <p class="small-title">LATEST ON THE WEBSITE</p>
+        <h2>Featured movies</h2>
+    </div>
+
+    <a class="text-link" href="{{ url_for('movies_page') }}">
+        View all movies
+    </a>
+</section>
+
+<section class="movie-grid">
+    {% for movie in featured_movies %}
+        <article class="movie-card">
+            <a class="poster-link" href="{{ url_for('movie_detail', movie_id=movie.id) }}">
+                <img
+                    src="{{ url_for('static', filename='images/' + movie.movie_poster) }}"
+                    alt="{{ movie.movie_name }} poster"
+                >
+
+                <span class="year-label">
+                    {{ movie.release_date.year }}
+                </span>
+            </a>
+
+            <div class="movie-card-text">
+                {% if movie.is_new %}
+                    <p class="new-label">New release</p>
+                {% elif movie.average_rating %}
+                    <p class="rating">★ {{ movie.average_rating }} / 5</p>
+                {% else %}
+                    <p class="not-rated">Not rated yet</p>
+                {% endif %}
+
+                <h3>
+                    <a href="{{ url_for('movie_detail', movie_id=movie.id) }}">
+                        {{ movie.movie_name }}
+                    </a>
+                </h3>
+
+                <p class="genre-list">
+                    {{ movie.genres | map(attribute='genre_name') | join(' · ') }}
+                </p>
+            </div>
+        </article>
+    {% endfor %}
+</section>
+
+<section class="simple-features">
+    <div>
+        <h3>Browse</h3>
+        <p>Look through a collection of popular movies.</p>
+    </div>
+
+    <div>
+        <h3>Search</h3>
+        <p>Find movies by title or choose a genre.</p>
+    </div>
+
+    <div>
+        <h3>Review</h3>
+        <p>Add your own rating and short review.</p>
+    </div>
+</section>
+{% endblock %}

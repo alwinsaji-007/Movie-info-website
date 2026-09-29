@@ -1,0 +1,170 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<a class="back-link" href="{{ url_for('movies_page') }}">
+    ← Back to movies
+</a>
+
+<section class="movie-detail">
+    <div class="detail-poster">
+        <img
+            src="{{ url_for('static', filename='images/' + movie.movie_poster) }}"
+            alt="{{ movie.movie_name }} poster"
+        >
+    </div>
+
+    <div class="detail-info">
+        <p class="small-title">
+            {{ movie.release_date.year }} ·
+            {{ movie.genres | map(attribute='genre_name') | join(' · ') }}
+        </p>
+
+        <h1>{{ movie.movie_name }}</h1>
+
+        <div class="rating-box">
+            {% if movie.average_rating %}
+                <strong>★ {{ movie.average_rating }} / 5</strong>
+            {% else %}
+                <strong>Not rated yet</strong>
+            {% endif %}
+
+            <span>
+                {{ reviews | length }} review{% if reviews | length != 1 %}s{% endif %}
+            </span>
+        </div>
+
+        <p class="synopsis">{{ movie.synopsis }}</p>
+
+        <div class="movie-facts">
+            <p>
+                <span>Release date</span>
+                {{ movie.release_date.strftime('%d %B %Y') }}
+            </p>
+
+            <p>
+                <span>Box office</span>
+                ${{ '{:,}'.format(movie.gross_collection) }}
+            </p>
+        </div>
+
+        <button class="button" type="button" id="open-review-modal">
+            Add a review
+        </button>
+    </div>
+</section>
+
+<section class="reviews-section">
+    <div class="section-heading">
+        <div>
+            <p class="small-title">VIEWER COMMENTS</p>
+            <h2>Reviews</h2>
+        </div>
+
+        <button class="small-button" type="button" id="open-review-modal-two">
+            Write a review
+        </button>
+    </div>
+
+    {% if reviews %}
+        <div class="review-list">
+            {% for review in reviews %}
+                <article class="review-card">
+                    <div class="review-top">
+                        <div class="avatar">
+                            {{ review.username[0] | upper }}
+                        </div>
+
+                        <div>
+                            <h3>{{ review.username }}</h3>
+                            <p>{{ review.review_date.strftime('%d %b %Y') }}</p>
+                        </div>
+
+                        <strong>★ {{ review.rating }}/5</strong>
+                    </div>
+
+                    <p>{{ review.comment }}</p>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-reviews">
+            <p>No reviews yet. Be the first to add one.</p>
+        </div>
+    {% endif %}
+</section>
+
+<div class="modal" id="review-modal">
+    <div class="modal-box">
+        <button class="modal-close" type="button" id="close-review-modal">
+            ×
+        </button>
+
+        <h2>Add your review</h2>
+
+        <p>Tell other viewers what you thought about {{ movie.movie_name }}.</p>
+
+        <form action="{{ url_for('add_review', movie_id=movie.id) }}" method="post">
+            <label for="username">Your name</label>
+
+            <input
+                id="username"
+                name="username"
+                maxlength="100"
+                required
+                placeholder="Your name"
+            >
+
+            <label for="rating">Your rating</label>
+
+            <select id="rating" name="rating" required>
+                <option value="5">5 - Excellent</option>
+                <option value="4">4 - Very good</option>
+                <option value="3">3 - Good</option>
+                <option value="2">2 - Okay</option>
+                <option value="1">1 - Poor</option>
+            </select>
+
+            <label for="comment">Your review</label>
+
+            <textarea
+                id="comment"
+                name="comment"
+                maxlength="1000"
+                required
+                placeholder="Write your review here"
+            ></textarea>
+
+            <button class="button submit-review" type="submit">
+                Post review
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById("review-modal");
+    const openButton = document.getElementById("open-review-modal");
+    const openButtonTwo = document.getElementById("open-review-modal-two");
+    const closeButton = document.getElementById("close-review-modal");
+
+    function openModal() {
+        modal.classList.add("open");
+        document.body.classList.add("body-locked");
+    }
+
+    function closeModal() {
+        modal.classList.remove("open");
+        document.body.classList.remove("body-locked");
+    }
+
+    openButton.addEventListener("click", openModal);
+    openButtonTwo.addEventListener("click", openModal);
+    closeButton.addEventListener("click", closeModal);
+
+    modal.addEventListener("click", function(event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %}
